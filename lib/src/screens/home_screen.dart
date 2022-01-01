@@ -31,6 +31,8 @@ class _bodyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final apiService = Provider.of<ApiService>(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -47,7 +49,11 @@ class _bodyApp extends StatelessWidget {
 
         IconButton(
           iconSize: 50,
-          onPressed: (){
+          onPressed: ()async{
+            await apiService.getAllEnfermedades();
+            await apiService.getAllCaracteristicas();
+            await apiService.getAllEnfermedadCaracteristica();
+            
             Navigator.pushNamed(context, 'dashboard');
           }, icon: Icon(Icons.settings, color: Colors.blue.shade300 ,)
         ),

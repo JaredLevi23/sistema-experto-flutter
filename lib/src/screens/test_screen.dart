@@ -25,7 +25,6 @@ class _TestScreenState extends State<TestScreen> {
     final scrollGridSeleccionados = ScrollController();
     final scrollControllerProbabilidades = ScrollController();
     final controllerRelaciones = ScrollController();
-    final controllerRelaciones2 = ScrollController();
 
     return Scaffold(
       appBar: AppBar( 
@@ -59,7 +58,7 @@ class _TestScreenState extends State<TestScreen> {
                     width: double.infinity,
                     height: 20,
                     color: Colors.blueAccent,
-                    child: const Center(child: Text('Selecciona los sintomas que presentas', style: TextStyle(color: Colors.white, fontSize: 15),)), 
+                    child: const Center(child: Text('Selecciona los sintomas que presentas', style: TextStyle(color: Colors.white, fontSize: 17),)), 
                   ),
                   Expanded(
                     child: ListView.builder(
@@ -93,11 +92,107 @@ class _TestScreenState extends State<TestScreen> {
 
                   CustomButton(
                     titulo: 'Inferir', 
-                    color: Colors.orange,
+                    color: Colors.deepOrange,
                     alto: 30,
-                    onPressed: (){}
+                    onPressed: ()async{
+                      
+                      //Verifica si ya se seleccionaron sintomas
+                      if(apiService.sintomasSeleccionados.isEmpty ){
+                        return showDialog(context: context, builder: (context){
+                          return const AlertDialog(
+                            title: Text('SELECCIONA ALGUN SINTOMA'),
+                          );
+                        });
+                      }
+
+                      bool encontrado = false;
+                      late Enfermedad posible; 
+                      List<Enfermedad> verificadas = []; 
+                      int mayor = 1;
+                      int total = 0;
+                      
+                    do{
+
+                        mayor = 1; // Reiniciar las variables
+                        total = 0; // reiniciar cuantas enfermedades son 
+                      //Saber quien tiene mas sintomas 
+                        for (var enfer in controller.diagnostico( apiService.enfermedades, apiService.sintomasSeleccionados)) {
+                          if( enfer.conteo >= mayor && !verificadas.contains(enfer)){
+                            mayor = enfer.conteo;
+                            posible = enfer;
+                            print( enfer.nombre +' - '+ enfer.conteo.toString());
+                          }
+                          if(enfer.conteo>=1){
+                            total++;
+                          }
+                        }
+
+                        print(posible.nombre);
+
+                      //Mostrar las preguntas de las que aun no ha verificado
+                      for (var sint in posible.sintomas) {
+                        if( !apiService.sintomasSeleccionados.contains(sint)){
+                          await showDialog(context: context, builder: (context){
+                            return AlertDialog(
+                              title: Text('Determinando si es ${posible.nombre}'),
+                              content: Text('¿Usted padece de ${sint.nombre}?'),
+                              actions: [
+                                TextButton(onPressed: (){
+                                  //Cambiar estado del sintoma
+                                  sint.bandera = true;
+                                  apiService.sintomasSeleccionados.add(sint);
+                                  Navigator.pop(context);
+                                }, child: const Text('Si')),
+                                TextButton(onPressed: (){
+                                  //Cambiar el estado del sintoma
+                                  sint.bandera = false;
+                                  Navigator.pop(context);
+                                }, child: const Text('No'))
+                              ]
+                            );
+                          });
+                        }
+                      }
+
+                      verificadas.add( posible );
+
+                      //Saber quien tiene mas sintomas 
+                        total = 0;
+                        for (var enfer in controller.diagnostico( apiService.enfermedades, apiService.sintomasSeleccionados)) {
+                          if(enfer.conteo>=1){
+                            total++;
+                          }
+                        }
+
+                      encontrado = true;
+                      for (var sin in posible.sintomas) {
+                        if( sin.bandera == false){
+                          encontrado = false;
+                        }  
+                      }
+
+                      if( encontrado == true){
+                        showDialog(context: context, builder: (context){
+                        return AlertDialog(
+                          title: Text('Usted podria padecer de ${posible.nombre}'),
+                        );
+                        });
+                      }
+
+                      //Sino es repetir lo de arriba
+                      } while( encontrado == false && 
+                      verificadas.length != total );
+                      
+                      if( encontrado == false){
+                         showDialog(context: context, builder: (context){
+                        return const AlertDialog(
+                          title: Text('Seleccione mas sintomas para determinar su enfermedad'),
+                        );
+                        });
+                      }
+                    }
                   ),
-                  SizedBox(height: 5,)
+                  const SizedBox(height: 5,)
                 ],
               ),
             ),
@@ -112,17 +207,21 @@ class _TestScreenState extends State<TestScreen> {
               child: ListView(
                 controller: scrollControllerDetalles,
                 children: [
-
-                  
-
                   //Datos seleccionados
-                  const Text('Sintomas seleccionados', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: Text('Sintomas seleccionados', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  ),
                   Container(
-                    color: Colors.grey[200],
+                    margin: const EdgeInsets.symmetric(horizontal: 15),
                     height: 220,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20)
+                    ),
                     width: double.infinity,
-                    
                     child: GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                       scrollDirection: Axis.vertical,
                       controller: scrollGridSeleccionados,            
                       
@@ -143,7 +242,10 @@ class _TestScreenState extends State<TestScreen> {
                   ),
 
                   //Probabilidades
-                  const Text('Probabilidad de que sea la enfermedad', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: Text('Probabilidad de que sea la enfermedad', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  ),
                   Container(
                     height: 200,
                     child: GridView.builder(
@@ -175,12 +277,15 @@ class _TestScreenState extends State<TestScreen> {
                   ),
 
                   //Objetos
-                  const Text('Relacion de enfermedades', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: Text('Relacion de enfermedades', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  ),
                   Container(
                     height: 800,
-                    color: Colors.red,
+                    
                     child: ListView.builder(
-
+                      padding: EdgeInsets.symmetric(horizontal: 15),
                       controller: controllerRelaciones,
                       itemCount: controller.diagnostico( apiService.enfermedades, apiService.sintomasSeleccionados).length,
                       itemBuilder: (context, indi){
@@ -188,21 +293,40 @@ class _TestScreenState extends State<TestScreen> {
                         return Container(
                           margin: EdgeInsets.only(top:10),
                           height: 25 *( list[indi].sintomas.length.toDouble() +1 ) ,
-                          color: Colors.blue,
+                          decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(20)
+                          ),
                           child: Row(
-                            //TODO: Poner iconos de estado check error 
+                            
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text( list[indi].nombre ),  
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  //Text( list[indi].sintomas[0].nombre ),
-                                  //SizedBox(height: 10,),
-                                  for (var sinto in list[indi].sintomas)
-                                    Text( sinto.nombre )
-                                ],
+                              Expanded(
+                                child: Align(
+                                  child: Text(
+                                   '${list[indi].nombre}\nSintomas: ${list[indi].conteo}', 
+                                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                   textAlign: TextAlign.center,
+                                  ), 
+                                alignment: Alignment.center,
+                                )
+                              ),  
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    //Text( list[indi].sintomas[0].nombre ),
+                                    //SizedBox(height: 10,),
+                                    for (var sinto in list[indi].sintomas)
+                                      Row(
+                                        children: [
+                                          Icon( sinto.bandera==true ? Icons.check : Icons.close, color: sinto.bandera==true ? Colors.red : Colors.black),
+                                          Text( sinto.nombre ),
+                                        ],
+                                      )
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -212,6 +336,10 @@ class _TestScreenState extends State<TestScreen> {
                   ),
 
                   //Graficas
+                  const Padding(
+                    padding: EdgeInsets.only(left: 15, top: 15),
+                    child: Text('Gráfica de datos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  ),
                   Container(
                     height: 400,
                     child: _showGraph( controller.diagnostico( apiService.enfermedades, apiService.sintomasSeleccionados) )
