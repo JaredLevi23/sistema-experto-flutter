@@ -43,6 +43,7 @@ class ApiService with ChangeNotifier{
   List<Enfermedad> enfermedadesDesactivadas = [];
 
   List<Caracteristica> sintomasSeleccionados = [];
+  List<Caracteristica> sintomasNOSeleccionados = [];
   //List<Enfermedad> enfermedadesRestantes = [];
 
   Enfermedad get enfermedadSeleccionada => _enfermedadSeleccionada;
@@ -307,6 +308,14 @@ class ApiService with ChangeNotifier{
       }
       
     }
+  }
+
+  Future loadDataReset()async{
+    await getAllEnfermedades();
+    await getAllCaracteristicas();
+    await getAllEnfermedadCaracteristica();
+    cargarData();
+    notifyListeners();
   }
 
   //TODO: Pensar en como resolver el pase de pregunta
