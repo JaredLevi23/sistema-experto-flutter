@@ -9,5 +9,5 @@ Este proyecto fue diseñado para evaluar la estabilidad de Flutter Desktop. Sist
 
 ## Muestra de ejecución 
 
-![Image text](https://github.com/zzuljs/CppLearning/blob/master/CppLearning/raw/master/Itachi.jpg)
-![Image text](https://github.com/zzuljs/CppLearning/blob/master/CppLearning/raw/master/Itachi.jpg)
+![Image text](https://github.com/JaredLevi23/sistema-experto-flutter/blob/main/assets/Cap1.PNG)
+![Image text](https://github.com/JaredLevi23/sistema-experto-flutter/blob/main/assets/Cap2.PNG)
