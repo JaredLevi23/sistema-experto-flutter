@@ -20,6 +20,7 @@ class _TestScreenState extends State<TestScreen> {
     final apiService = Provider.of<ApiService>(context);
     final controller = TestController();
 
+    // Controladores de cada listview o gridview
     final scrollControllerSintomas = ScrollController();
     final scrollControllerDetalles = ScrollController();
     final scrollGridSeleccionados = ScrollController();
@@ -50,7 +51,6 @@ class _TestScreenState extends State<TestScreen> {
         width: double.infinity,
         child: Row(
           children: [
-
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.35,
               height: double.infinity,
