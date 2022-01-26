@@ -1,16 +1,11 @@
-# sistema_experto_flutter
+# Sistema experto flutter
+Este proyecto fue diseñado para evaluar la estabilidad de Flutter Desktop. Sistema experto de enfermedades respiratorias.
 
-A new Flutter project.
+## Requisitos
 
-## Getting Started
+- Tener la base de datos
+- Tener el restserver de node
+- Flutter 2.5 o superior
 
-This project is a starting point for a Flutter application.
+## Muestra de ejecución 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
